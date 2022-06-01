@@ -29,6 +29,8 @@ init: ## Init environment
 	@ $(MAKE) --no-print-directory log-$@
 	go install github.com/goreleaser/goreleaser@latest
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin 
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install  google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 .PHONY: rename
 rename: ## Rename Go module refactoring

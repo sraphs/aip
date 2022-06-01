@@ -2,4 +2,13 @@
     "gopls": {
         "formatting.local": "github.com/sraphs/aip"
     },
+    "protoc": {
+        "options": [
+            "--proto_path=${workspaceFolder}/internal/testdata",
+            "--proto_path=${workspaceFolder}/third_party",
+        ],
+    },
+    "path-intellisense.mappings": {
+        "google": "${workspaceFolder}/third_party/google",
+    },
 }
