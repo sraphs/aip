@@ -1,0 +1,35 @@
+builds:
+  - skip: true
+
+changelog:
+  use: github
+  groups:
+    - title: ✨Features
+      regexp: "^.*feat[\\w]*:+.*$"
+      order: 0
+    - title: 🐞Bug Fixes
+      regexp: "^.*fix[\\w]*:+.*$"
+      order: 1
+    - title: ⚙️Code Refactoring
+      regexp: "^.*refactor[\\w]*:+.*$"
+      order: 2
+    - title: 🕜Performance Improvements
+      regexp: "^.*perf[\\w]*:+.*$"
+      order: 3
+    - title: 🚀Chores
+      regexp: "^.*chore[\\w]*:+.*$"
+      order: 4
+    - title: 🌈Style Improvements
+      regexp: "^.*style[\\w]*:+.*$"
+      order: 5
+    - title: ✅Tests
+      regexp: "^.*test[\\w]*:+.*$"
+      order: 6
+    - title: 📄Documentations
+      regexp: "^.*docs[\\w]*:+.*$"
+      order: 7
+    - title: ⏪Reverts
+      regexp: "^.*revert[\\w]*:+.*$"
+      order: 8
+    - title: Others
+      order: 999
