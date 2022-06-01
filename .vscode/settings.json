@@ -1,5 +1,5 @@
 {
     "gopls": {
-        "formatting.local": "github.com/sraphs/go-starter"
+        "formatting.local": "github.com/sraphs/aip"
     },
 }
