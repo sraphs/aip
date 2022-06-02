@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/google/uuid v1.1.2
+	github.com/sony/sonyflake v1.0.0
 	google.golang.org/genproto v0.0.0-20220531173845-685668d2de03
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
