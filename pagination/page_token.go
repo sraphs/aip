@@ -16,11 +16,11 @@ import (
 
 var Generator = NewTokenGenerator()
 
-func GetIndex(s string) (int, error) {
+func GetIndex(s string) (int32, error) {
 	return Generator.GetIndex(s)
 }
 
-func ForIndex(i int) string {
+func ForIndex(i int32) string {
 	return Generator.ForIndex(i)
 }
 
@@ -37,8 +37,8 @@ func TokenGeneratorWithSalt(salt string) TokenGenerator {
 
 // TokenGenerator generates a page token for a given index.
 type TokenGenerator interface {
-	ForIndex(int) string
-	GetIndex(string) (int, error)
+	ForIndex(int32) string
+	GetIndex(string) (int32, error)
 }
 
 // InvalidTokenErr is the error returned if the token provided is not
@@ -51,12 +51,12 @@ type tokenGenerator struct {
 	salt string
 }
 
-func (t *tokenGenerator) ForIndex(i int) string {
+func (t *tokenGenerator) ForIndex(i int32) string {
 	return base64.StdEncoding.EncodeToString(
 		[]byte(fmt.Sprintf("%s%d", t.salt, i)))
 }
 
-func (t *tokenGenerator) GetIndex(s string) (int, error) {
+func (t *tokenGenerator) GetIndex(s string) (int32, error) {
 	if s == "" {
 		return 0, nil
 	}
@@ -75,5 +75,5 @@ func (t *tokenGenerator) GetIndex(s string) (int, error) {
 	if err != nil {
 		return -1, InvalidTokenErr
 	}
-	return i, nil
+	return int32(i), nil
 }

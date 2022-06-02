@@ -7,7 +7,7 @@ import (
 
 func Test_tokenGenerator_ForIndex(t *testing.T) {
 	salt := "salt"
-	index := 1
+	var index int32 = 1
 	want := base64.StdEncoding.EncodeToString(
 		[]byte("salt1"))
 	tok := TokenGeneratorWithSalt(salt)

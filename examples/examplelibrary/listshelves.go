@@ -48,7 +48,7 @@ func (s *Server) ListShelves(
 	}
 	// Set the next page token.
 	if result.HasNextPage {
-		response.NextPageToken = generator.ForIndex(offset + int(request.PageSize))
+		response.NextPageToken = generator.ForIndex(offset + (request.PageSize))
 	}
 	// Respond.
 	return response, nil
