@@ -118,6 +118,11 @@ func clearFieldsWithBehaviors(m proto.Message, behaviorsToClear ...annotations.F
 		if hasAnyBehavior(behaviors, behaviorsToClear) {
 			m.Clear(f)
 		}
+
+		if f.Kind() == protoreflect.MessageKind {
+			clearFieldsWithBehaviors(v.Message().Interface(), behaviorsToClear...)
+		}
+
 		return true
 	})
 }
