@@ -6,6 +6,9 @@ import (
 	expr "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	"github.com/sraphs/aip/filtering/decls"
+	"github.com/sraphs/aip/filtering/types"
 )
 
 // NewStringConstant creates a new string constant.
@@ -102,6 +105,13 @@ func DeclareIdent(name string, t *expr.Type) DeclarationOption {
 func DeclareEnumIdent(name string, enumType protoreflect.EnumType) DeclarationOption {
 	return func(declarations *Declarations) error {
 		return declarations.declareEnumIdent(name, enumType)
+	}
+}
+
+// DeclareProtoMessage is a DeclarationOption that declares a single proto message.
+func DeclareProtoMessage(message protoreflect.ProtoMessage) DeclarationOption {
+	return func(declarations *Declarations) error {
+		return declarations.declareProtoMessage(message)
 	}
 }
 
@@ -219,4 +229,70 @@ func (d *Declarations) declare(decl *expr.Decl) error {
 	default:
 		return fmt.Errorf("unsupported declaration kind")
 	}
+}
+
+func (d *Declarations) declareProtoMessage(message protoreflect.ProtoMessage) error {
+	pr := message.ProtoReflect()
+	fields := pr.Descriptor().Fields()
+	for i := 0; i < fields.Len(); i++ {
+		field := fields.Get(i)
+		name := string(field.Name())
+
+		decl, err := fieldToDecl(field)
+		if err != nil {
+			return err
+		}
+		if _, ok := d.idents[name]; ok {
+			return fmt.Errorf("redeclaration of %s", name)
+		}
+		d.idents[name] = decl
+	}
+	return nil
+}
+
+func fieldToDecl(field protoreflect.FieldDescriptor) (*expr.Decl, error) {
+	name := string(field.Name())
+	if field.IsMap() {
+		mapKey := field.MapKey()
+		mapValue := field.MapValue()
+		keyType, err := fieldToType(mapKey)
+		if err != nil {
+			return nil, err
+		}
+		valueType, err := fieldToType(mapValue)
+		if err != nil {
+			return nil, err
+		}
+		return decls.NewVar(name, decls.NewMapType(keyType, valueType)), nil
+	}
+	if field.IsList() {
+		elemType, err := fieldToType(field)
+		if err != nil {
+			return nil, err
+		}
+		return decls.NewVar(name, decls.NewListType(elemType)), nil
+	}
+	celType, err := fieldToType(field)
+	if err != nil {
+		return nil, err
+	}
+	return decls.NewVar(name, celType), nil
+}
+
+func fieldToType(field protoreflect.FieldDescriptor) (*expr.Type, error) {
+	if field.Kind() == protoreflect.MessageKind {
+		msgName := (string)(field.Message().FullName())
+		wellKnownType, found := types.CheckedWellKnowns[msgName]
+		if found {
+			return wellKnownType, nil
+		}
+		return decls.NewObjectType(msgName), nil
+	}
+	if primitiveType, found := types.CheckedPrimitives[field.Kind()]; found {
+		return primitiveType, nil
+	}
+	if field.Kind() == protoreflect.EnumKind {
+		return decls.Int, nil
+	}
+	return nil, fmt.Errorf("field %s type %s not implemented", field.FullName(), field.Kind().String())
 }
