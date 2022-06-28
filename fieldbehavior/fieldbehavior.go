@@ -119,16 +119,23 @@ func clearFieldsWithBehaviors(m proto.Message, behaviorsToClear ...annotations.F
 			m.Clear(f)
 		}
 
-		if f.IsList() {
-			list := m.Get(f).List()
-			for i := 0; i < list.Len(); i++ {
-				v := list.Get(i)
-				if p, ok := v.Interface().(proto.Message); ok {
-					clearFieldsWithBehaviors(p, behaviorsToClear...)
+		if f.Kind() == protoreflect.MessageKind {
+			switch {
+			case f.IsList():
+				for i := 0; i < v.List().Len(); i++ {
+					clearFieldsWithBehaviors(v.List().Get(i).Message().Interface(), behaviorsToClear...)
 				}
+			case f.IsMap():
+				if f.MapValue().Kind() != protoreflect.MessageKind {
+					return true
+				}
+				v.Map().Range(func(mk protoreflect.MapKey, mv protoreflect.Value) bool {
+					clearFieldsWithBehaviors(mv.Message().Interface(), behaviorsToClear...)
+					return true
+				})
+			default:
+				clearFieldsWithBehaviors(v.Message().Interface(), behaviorsToClear...)
 			}
-		} else if f.Kind() == protoreflect.MessageKind {
-			clearFieldsWithBehaviors(v.Message().Interface(), behaviorsToClear...)
 		}
 
 		return true
